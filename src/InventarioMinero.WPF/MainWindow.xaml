@@ -1,0 +1,510 @@
+<Window x:Class="InventarioMinero.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:InventarioMinero.WPF.ViewModels"
+        xmlns:views="clr-namespace:InventarioMinero.WPF.Views"
+        mc:Ignorable="d"
+        Title="Planta Minera Dorado S.A. - Control de Inventario y Almacén"
+        Height="800" Width="1320"
+        MinHeight="680" MinWidth="1024"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BrushBgDeep}">
+
+    <Window.Resources>
+        <!-- Mapeo MVVM de ViewModels a sus Vistas correspondientes -->
+        <DataTemplate DataType="{x:Type vm:HerramientasViewModel}">
+            <views:HerramientasView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EPPViewModel}">
+            <views:EPPView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:RequerimientosViewModel}">
+            <views:RequerimientosView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MovimientosViewModel}">
+            <views:MovimientosView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AsignacionesViewModel}">
+            <views:AsignacionesView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EntregasEPPViewModel}">
+            <views:EntregasEPPView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:EmpleadosViewModel}">
+            <views:EmpleadosView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:UsuariosViewModel}">
+            <views:UsuariosView/>
+        </DataTemplate>
+
+        <!-- Estilo para los botones del menú de navegación lateral -->
+        <Style x:Key="SidebarNavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource BrushTextSecondary}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1C2430"/>
+                                <Setter Property="Foreground" Value="{StaticResource BrushTextPrimary}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#253040"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- Header superior corporativo -->
+            <RowDefinition Height="64"/>
+            <!-- Área principal (Sidebar + Contenido) -->
+            <RowDefinition Height="*"/>
+            <!-- Status Bar inferior -->
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- ── HEADER SUPERIOR ── -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
+                Background="{StaticResource BrushBgMain}"
+                BorderBrush="{StaticResource BrushBorderSubtle}"
+                BorderThickness="0,0,0,1">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <!-- Logo y Nombre de Empresa -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Espaciador -->
+                    <ColumnDefinition Width="*"/>
+                    <!-- Perfil de Usuario y Logout -->
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Logo & Título -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="40" Height="40"
+                            Background="{StaticResource BrushGoldSubtle}"
+                            BorderBrush="{StaticResource BrushGoldBright}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Margin="0,0,14,0">
+                        <Viewbox Width="22" Height="22">
+                            <Canvas Width="24" Height="24">
+                                <Path Fill="{StaticResource BrushGoldBright}"
+                                      Data="M14.7,6.3L13.3,4.9C13,4.6,12.4,4.7,12.1,5.1L10.7,7L7,10.7C6.6,11.1,6.6,11.7,7,12.1l1.4,1.4l-6.7,6.7c-0.4,0.4-0.4,1,0,1.4l1.4,1.4c0.4,0.4,1,0.4,1.4,0l6.7-6.7l1.4,1.4c0.4,0.4,1,0.4,1.4,0l3.7-3.7l1.9-1.4c0.4-0.3,0.5-0.9,0.2-1.2L14.7,6.3z M20.7,2.3c-2.3-1.2-5.1-0.7-6.9,1.1l2.4,2.4l3.1-0.7l0.7-3.1C20.3,2.1,20.5,2.2,20.7,2.3z"/>
+                            </Canvas>
+                        </Viewbox>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="PLANTA MINERA"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource BrushTextSecondary}"
+                                       Margin="0,0,6,0"/>
+                            <Border Background="{StaticResource BrushGoldSubtle}"
+                                    CornerRadius="4" Padding="6,1">
+                                <TextBlock Text="DORADO S.A."
+                                           FontSize="10"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource BrushGoldBright}"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="SISTEMA DE CONTROL DE INVENTARIO Y DESPACHO"
+                                   FontSize="14"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource BrushTextPrimary}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Usuario y Controles del Header -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Chip de estado LAN -->
+                    <Border Background="#16202B"
+                            BorderBrush="{StaticResource BrushBorderSubtle}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="10,5"
+                            Margin="0,0,16,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="8" Height="8" Fill="{StaticResource BrushSuccess}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Terminal Activa (Red 4 PCs)"
+                                       FontSize="11"
+                                       Foreground="{StaticResource BrushTextSecondary}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Avatar / Inicial -->
+                    <Border Width="38" Height="38"
+                            Background="{StaticResource BrushGoldSubtle}"
+                            BorderBrush="{StaticResource BrushGoldBright}"
+                            BorderThickness="1"
+                            CornerRadius="19"
+                            Margin="0,0,10,0">
+                        <TextBlock Text="A"
+                                   FontWeight="Bold"
+                                   FontSize="15"
+                                   Foreground="{StaticResource BrushGoldBright}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+
+                    <!-- Nombre y Rol -->
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,18,0">
+                        <TextBlock Text="{Binding NombreCompleto}"
+                                   FontWeight="SemiBold"
+                                   FontSize="13"
+                                   Foreground="{StaticResource BrushTextPrimary}"/>
+                        <Border Background="{StaticResource BrushGoldSubtle}"
+                                CornerRadius="4"
+                                HorizontalAlignment="Left"
+                                Padding="6,1"
+                                Margin="0,2,0,0">
+                            <TextBlock Text="{Binding RolNombre}"
+                                       FontSize="10"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource BrushGoldBright}"/>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Botón Salir -->
+                    <Button Style="{StaticResource WindowChromeButtonStyle}"
+                            Command="{Binding CerrarSesionCommand}"
+                            CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
+                            ToolTip="Cerrar Sesión"
+                            Width="36" Height="36">
+                        <Path Data="M9,3 L5,3 C3.89,3 3,3.89 3,5 L3,19 C3,20.1 3.89,21 5,21 L9,21 M16,17 L21,12 L16,7 M21,12 L9,12"
+                              Stroke="{StaticResource BrushTextSecondary}"
+                              StrokeThickness="1.8"
+                              Width="18" Height="18"
+                              Stretch="Uniform"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- ── CUERPO PRINCIPAL: SIDEBAR + VISTAS DINÁMICAS ── -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <!-- Sidebar de Navegación -->
+                <ColumnDefinition Width="260"/>
+                <!-- Contenido Principal -->
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ── SIDEBAR ── -->
+            <Border Grid.Column="0"
+                    Background="{StaticResource BrushBgMain}"
+                    BorderBrush="{StaticResource BrushBorderSubtle}"
+                    BorderThickness="0,0,1,0">
+                <DockPanel Margin="14,18">
+                    <StackPanel DockPanel.Dock="Top">
+                        <TextBlock Text="MÓDULOS DE OPERACIÓN"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource BrushTextMuted}"
+                                   Margin="10,0,0,14"/>
+
+                        <!-- Botón 1: Dashboard -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="Dashboard">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📊" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="Dashboard General" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Botón 2: Herramientas -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="Herramientas">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🛠️" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="Herramientas y Stock" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Botón 3: EPP -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="EPP">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🦺" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="EPP y Entregas" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Botón 4: Requerimientos -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="Requerimientos">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📋" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="Requerimientos de Compra" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Botón 5: Movimientos -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="Movimientos">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔄" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="Movimientos y Kárdex" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Botón 6: Préstamos de Herramientas -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="Asignaciones">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔧" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="Préstamos de Herramientas" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Botón 7: Dotación de EPP -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="EntregasEPP">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🛡️" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="Dotación de EPP" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Botón 8: Personal Minero -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="Empleados">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="👷" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="Personal y Cargos" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Botón 9: Usuarios y Seguridad -->
+                        <Button Style="{StaticResource SidebarNavButtonStyle}"
+                                Command="{Binding NavegarCommand}"
+                                CommandParameter="Usuarios">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔐" FontSize="16" Margin="0,0,12,0"/>
+                                <TextBlock Text="Usuarios y Accesos" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- ── CONTENIDO PRINCIPAL: DASHBOARD O VISTA SELECCIONADA ── -->
+            <Grid Grid.Column="1">
+                <!-- 1. VISTA DASHBOARD (cuando CurrentView es nulo) -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ScrollViewer.Style>
+                        <Style TargetType="ScrollViewer">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentView}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ScrollViewer.Style>
+
+                    <Grid Margin="28,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Banner de bienvenida -->
+                        <Border Grid.Row="0"
+                                Background="{StaticResource BrushBgCard}"
+                                BorderBrush="{StaticResource BrushBorderSubtle}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="24,20"
+                                Margin="0,0,0,24">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Panel de Control • Planta Minera Dorado S.A."
+                                               FontSize="20"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource BrushTextPrimary}"
+                                               Margin="0,0,0,6"/>
+                                    <TextBlock Text="Sistema en línea operando con base de datos SQL Server centralizada."
+                                               FontSize="13"
+                                               Foreground="{StaticResource BrushTextSecondary}"/>
+                                </StackPanel>
+                                <Border Grid.Column="1"
+                                        Background="{StaticResource BrushGoldSubtle}"
+                                        BorderBrush="{StaticResource BrushGoldBright}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="14,8"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="Módulos de Herramientas y EPP Listos ✅"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource BrushGoldBright}"
+                                               FontSize="12"/>
+                                </Border>
+                            </Grid>
+                        </Border>
+
+                        <!-- Tarjetas KPI -->
+                        <Grid Grid.Row="1" Margin="0,0,0,24">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- KPI 1: Herramientas -->
+                            <Border Grid.Column="0" Style="{StaticResource DarkCardStyle}" Padding="18">
+                                <StackPanel>
+                                    <TextBlock Text="HERRAMIENTAS" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextMuted}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="4 Tipos" FontSize="26" FontWeight="Bold" Foreground="{StaticResource BrushGoldBright}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="30 unidades en stock" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- KPI 2: EPPs -->
+                            <Border Grid.Column="2" Style="{StaticResource DarkCardStyle}" Padding="18">
+                                <StackPanel>
+                                    <TextBlock Text="EQUIPOS EPP" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextMuted}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="6 Ítems" FontSize="26" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="172 unidades en almacén" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- KPI 3: Alerta Stock Mínimo -->
+                            <Border Grid.Column="4" Style="{StaticResource DarkCardStyle}" Padding="18" BorderBrush="{StaticResource BrushWarning}">
+                                <StackPanel>
+                                    <TextBlock Text="STOCK BAJO O MÍNIMO" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushWarning}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="2 Ítems" FontSize="26" FontWeight="Bold" Foreground="{StaticResource BrushWarning}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Listos para hoja de compra" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- KPI 4: Terminales LAN -->
+                            <Border Grid.Column="6" Style="{StaticResource DarkCardStyle}" Padding="18">
+                                <StackPanel>
+                                    <TextBlock Text="TERMINALES ACTIVAS" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextMuted}" Margin="0,0,0,8"/>
+                                    <TextBlock Text="4 PCs" FontSize="26" FontWeight="Bold" Foreground="{StaticResource BrushSuccess}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="Concurrencia lista" FontSize="12" Foreground="{StaticResource BrushTextSecondary}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Sección de Accesos Rápidos -->
+                        <Border Grid.Row="2" Style="{StaticResource DarkCardStyle}" Padding="24">
+                            <StackPanel>
+                                <TextBlock Text="Acceso Rápido a Módulos del Almacén"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource BrushTextPrimary}"
+                                           Margin="0,0,0,8"/>
+                                <TextBlock Text="Gestione el inventario minero con control de stock en tiempo real y generación automática de hojas de requerimiento."
+                                           FontSize="13"
+                                           Foreground="{StaticResource BrushTextSecondary}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,18"/>
+
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Style="{StaticResource GoldPrimaryButtonStyle}"
+                                            Command="{Binding NavegarCommand}"
+                                            CommandParameter="Herramientas"
+                                            Content="🛠️ Ir a Catálogo de Herramientas"
+                                            Padding="18,10"
+                                            Margin="0,0,12,0"/>
+                                    <Button Style="{StaticResource GoldPrimaryButtonStyle}"
+                                            Command="{Binding NavegarCommand}"
+                                            CommandParameter="EPP"
+                                            Background="#222B38"
+                                            Foreground="{StaticResource BrushTextPrimary}"
+                                            Content="🦺 Ir a Catálogo de EPP"
+                                            Padding="18,10"
+                                            Margin="0,0,12,0"/>
+                                    <Button Style="{StaticResource GoldPrimaryButtonStyle}"
+                                            Command="{Binding NavegarCommand}"
+                                            CommandParameter="Requerimientos"
+                                            Content="📋 Hoja de Requerimiento"
+                                            Padding="18,10"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+
+                <!-- 2. VISTAS DINÁMICAS (cuando CurrentView tiene un ViewModel asignado) -->
+                <ContentControl Content="{Binding CurrentView}"/>
+            </Grid>
+        </Grid>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- ── STATUS BAR INFERIOR ── -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="2"
+                Background="{StaticResource BrushBgMain}"
+                BorderBrush="{StaticResource BrushBorderSubtle}"
+                BorderThickness="0,1,0,0"
+                Padding="16,0">
+            <Grid VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Ellipse Width="7" Height="7" Fill="{StaticResource BrushSuccess}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="Base de Datos: SQL Server (.\SQLMARX • InventarioMineroDoradoSA)"
+                               FontSize="11"
+                               Foreground="{StaticResource BrushTextSecondary}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <TextBlock Grid.Column="2"
+                           Text="Planta Minera Dorado S.A. • Versión 1.0.0"
+                           FontSize="11"
+                           Foreground="{StaticResource BrushTextMuted}"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

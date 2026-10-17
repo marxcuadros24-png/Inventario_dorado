@@ -1,0 +1,632 @@
+<UserControl x:Class="InventarioMinero.WPF.Views.RequerimientosView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:vm="clr-namespace:InventarioMinero.WPF.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="1100"
+             Loaded="UserControl_Loaded">
+
+    <Grid Margin="24,20">
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- ── CONTENIDO PRINCIPAL: LISTA DE REQUERIMIENTOS ── -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Grid>
+            <Grid.RowDefinitions>
+                <!-- Título y Generador Automático -->
+                <RowDefinition Height="Auto"/>
+                <!-- Banner de Alerta de Stock Bajo -->
+                <RowDefinition Height="Auto"/>
+                <!-- KPIs Rápidos -->
+                <RowDefinition Height="Auto"/>
+                <!-- Barra de Búsqueda y Filtros -->
+                <RowDefinition Height="Auto"/>
+                <!-- Mensaje Feedback -->
+                <RowDefinition Height="Auto"/>
+                <!-- Tabla DataGrid -->
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ── FILA 0: ENCABEZADO ── -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📋" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Requerimientos de Compra por Stock Mínimo"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource BrushTextPrimary}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="Generación automática de solicitudes de compra para entrega física o PDF al Administrador"
+                               FontSize="13"
+                               Foreground="{StaticResource BrushTextSecondary}"
+                               Margin="32,2,0,0"/>
+                </StackPanel>
+
+                <!-- Botón Generar Automático Prominente -->
+                <Button Grid.Column="1"
+                        Style="{StaticResource GoldPrimaryButtonStyle}"
+                        Command="{Binding GenerarAutomaticoCommand}"
+                        Padding="20,10">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚡" FontSize="16" FontWeight="Bold" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                        <TextBlock Text="Generar Requerimiento por Stock Bajo" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- ── FILA 1: BANNER DE ALERTA DE STOCK BAJO ── -->
+            <Border Grid.Row="1"
+                    Background="#2C2010"
+                    BorderBrush="{StaticResource BrushWarning}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="16,12"
+                    Margin="0,0,0,16">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HayStockBajo}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="⚠️" FontSize="24" Margin="0,0,14,0" VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="ALERTA DE REPOSICIÓN: ÍTEMS EN STOCK MÍNIMO O AGOTADO"
+                                   FontWeight="Bold"
+                                   FontSize="13"
+                                   Foreground="{StaticResource BrushWarning}"/>
+                        <TextBlock Text="Se detectaron herramientas o equipos EPP cuyo stock disponible es igual o menor al mínimo reglamentario."
+                                   FontSize="12"
+                                   Foreground="#FFD599"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Style="{StaticResource GoldPrimaryButtonStyle}"
+                            Command="{Binding GenerarAutomaticoCommand}"
+                            Padding="14,8"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="Generar Hoja Ahora" FontWeight="Bold" FontSize="12"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- ── FILA 2: TARJETAS KPI ── -->
+            <Grid Grid.Row="2" Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource DarkCardStyle}" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="HISTORIAL TOTAL DE REQUERIMIENTOS" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextMuted}"/>
+                        <TextBlock Text="{Binding TotalRequerimientos}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource BrushTextPrimary}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" Style="{StaticResource DarkCardStyle}" Padding="16,12" BorderBrush="{StaticResource BrushWarning}">
+                    <StackPanel>
+                        <TextBlock Text="PENDIENTES DE APROBACIÓN / COMPRA" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushWarning}"/>
+                        <TextBlock Text="{Binding RequerimientosPendientes}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource BrushWarning}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4" Style="{StaticResource DarkCardStyle}" Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="REQUERIMIENTOS ATENDIDOS POR ALMACÉN" FontSize="11" FontWeight="SemiBold" Foreground="{StaticResource BrushTextMuted}"/>
+                        <TextBlock Text="{Binding RequerimientosAtendidos}" FontSize="24" FontWeight="Bold" Foreground="{StaticResource BrushSuccess}" Margin="0,2,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ── FILA 3: BARRA DE BÚSQUEDA Y FILTROS ── -->
+            <Border Grid.Row="3"
+                    Background="{StaticResource BrushBgCard}"
+                    BorderBrush="{StaticResource BrushBorderSubtle}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,12"
+                    Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             Style="{StaticResource DarkTextBoxStyle}"
+                             Text="{Binding Busqueda, UpdateSourceTrigger=PropertyChanged}"
+                             KeyDown="Busqueda_KeyDown"
+                             Padding="12,8"
+                             Tag="Buscar por número (REQ-...), solicitante o área..."/>
+
+                    <CheckBox Grid.Column="2"
+                              Style="{StaticResource DarkCheckBoxStyle}"
+                              Content="Solo Requerimientos Pendientes"
+                              IsChecked="{Binding SoloPendientes}"
+                              VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="4" Orientation="Horizontal">
+                        <Button Style="{StaticResource DarkSecondaryButtonStyle}"
+                                Command="{Binding CargarRequerimientosCommand}"
+                                Content="🔍 Buscar"
+                                Margin="0,0,8,0"/>
+                        <Button Style="{StaticResource DarkSecondaryButtonStyle}"
+                                Command="{Binding InicializarCommand}"
+                                Content="↺ Refrescar"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ── FILA 4: MENSAJE FEEDBACK ── -->
+            <Border Grid.Row="4"
+                    CornerRadius="8"
+                    Padding="14,10"
+                    Margin="0,0,0,14">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding MensajeFeedback, Converter={x:Null}}" Value="False">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Border.Background>
+                    <SolidColorBrush Color="#1F2A22"/>
+                </Border.Background>
+                <TextBlock Text="{Binding MensajeFeedback}"
+                           Foreground="{StaticResource BrushGoldBright}"
+                           FontWeight="SemiBold"
+                           FontSize="13"/>
+            </Border>
+
+            <!-- ── FILA 5: TABLA DE REQUERIMIENTOS ── -->
+            <Border Grid.Row="5"
+                    Background="{StaticResource BrushBgCard}"
+                    BorderBrush="{StaticResource BrushBorderSubtle}"
+                    BorderThickness="1"
+                    CornerRadius="10">
+                <DataGrid ItemsSource="{Binding Requerimientos}"
+                          SelectedItem="{Binding RequerimientoSeleccionado}"
+                          Style="{StaticResource DarkDataGridStyle}">
+                    <DataGrid.Columns>
+                        <!-- Nro. Requerimiento -->
+                        <DataGridTemplateColumn Header="NÚMERO" Width="150">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Numero}"
+                                               FontWeight="Bold"
+                                               FontSize="13"
+                                               Foreground="{StaticResource BrushGoldBright}"
+                                               VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Fecha de Emisión -->
+                        <DataGridTemplateColumn Header="FECHA EMISIÓN" Width="150">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Fecha, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}"
+                                               Foreground="{StaticResource BrushTextSecondary}"
+                                               VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Solicitante -->
+                        <DataGridTemplateColumn Header="SOLICITANTE" Width="180">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Usuario.Empleado.NombreCompleto, TargetNullValue='Almacenero de Turno'}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource BrushTextPrimary}"/>
+                                        <TextBlock Text="{Binding Area, TargetNullValue='Almacén Central'}"
+                                                   FontSize="11"
+                                                   Foreground="{StaticResource BrushTextMuted}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Ítems Solicitados -->
+                        <DataGridTemplateColumn Header="TOTAL ÍTEMS" Width="110">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="#1C2634" CornerRadius="6" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Detalles.Count, StringFormat='{}{0} artículo(s)'}"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource BrushTextSecondary}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Estado -->
+                        <DataGridTemplateColumn Header="ESTADO" Width="120">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="6" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="#2D2415"/>
+                                                <Setter Property="BorderBrush" Value="{StaticResource BrushWarning}"/>
+                                                <Setter Property="BorderThickness" Value="1"/>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Estado}"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   Foreground="{StaticResource BrushWarning}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Estado de Impresión -->
+                        <DataGridTemplateColumn Header="IMPRESIÓN" Width="180">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding FechaImpresion, StringFormat='{}🖨️ Impreso: {0:dd/MM HH:mm}', TargetNullValue='⚪ Sin Imprimir'}"
+                                                   FontSize="12"
+                                                   Foreground="{StaticResource BrushTextSecondary}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Acciones -->
+                        <DataGridTemplateColumn Header="ACCIONES" Width="130">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Style="{StaticResource TableActionButtonStyle}"
+                                                Command="{Binding DataContext.VerDetalleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="Ver Hoja e Imprimir">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="📄" FontSize="14" Margin="0,0,4,0"/>
+                                                <TextBlock Text="Ver Hoja" FontSize="12" Foreground="{StaticResource BrushGoldBright}" FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- ── MODAL VISTA PREVIA E IMPRESIÓN DE HOJA OFICIAL ── -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <Border Background="#B3000000"
+                Margin="-24,-20">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsPrintPreviewOpen}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <Grid Margin="30">
+                <Grid.RowDefinitions>
+                    <!-- Barra de Controles de Impresión -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Hoja de Papel A4 Scrolleable -->
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- ── BARRA SUPERIOR DE ACCIONES DE IMPRESIÓN ── -->
+                <Border Grid.Row="0"
+                        Background="{StaticResource BrushBgCard}"
+                        BorderBrush="{StaticResource BrushBorderSubtle}"
+                        BorderThickness="1"
+                        CornerRadius="10,10,0,0"
+                        Padding="20,12"
+                        Width="850">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Vista Previa de Impresión:"
+                                       FontSize="14"
+                                       Foreground="{StaticResource BrushTextSecondary}"
+                                       Margin="0,0,8,0"/>
+                            <TextBlock Text="{Binding RequerimientoParaImprimir.Numero}"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource BrushGoldBright}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <!-- Botón Imprimir -->
+                            <Button Style="{StaticResource GoldPrimaryButtonStyle}"
+                                    Click="BtnImprimir_Click"
+                                    Padding="18,8"
+                                    Margin="0,0,12,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🖨️" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="IMPRIMIR / PDF" FontWeight="Bold" FontSize="13" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- Botón Cerrar -->
+                            <Button Style="{StaticResource DarkSecondaryButtonStyle}"
+                                    Command="{Binding CerrarVistaPreviaCommand}"
+                                    Content="Cerrar Vista"
+                                    Padding="14,8"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ── HOJA FORMAL A4 (DOCUMENTO BLANCO OFICIAL) ── -->
+                <ScrollViewer Grid.Row="1"
+                              Width="850"
+                              Background="#2A303C"
+                              VerticalScrollBarVisibility="Auto">
+                    <Border Margin="20"
+                            HorizontalAlignment="Center">
+                        <!-- ESTE CONTENEDOR ES EL QUE SE ENVÍA AL PRINTDIALOG DIRECTAMENTE -->
+                        <Border x:Name="HojaImprimible"
+                                Width="780"
+                                Background="#FFFFFF"
+                                Padding="40"
+                                CornerRadius="4">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#000000" BlurRadius="25" Opacity="0.5" ShadowDepth="10"/>
+                            </Border.Effect>
+
+                            <StackPanel TextElement.Foreground="#1F2937" TextElement.FontFamily="Segoe UI">
+                                <!-- ── MEMBRETE CORPORATIVO ── -->
+                                <Grid Margin="0,0,0,20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="220"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Empresa & RUC -->
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="PLANTA MINERA DORADO S.A."
+                                                   FontSize="18"
+                                                   FontWeight="Bold"
+                                                   Foreground="#B88220"/>
+                                        <TextBlock Text="RUC: 20609876543 • Asiento Minero Central"
+                                                   FontSize="11"
+                                                   Foreground="#4B5563"/>
+                                        <TextBlock Text="Departamento de Almacén y Abastecimiento de Operaciones"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="#374151"/>
+                                    </StackPanel>
+
+                                    <!-- Cuadro de Nro. Documento -->
+                                    <Border Grid.Column="1"
+                                            BorderBrush="#B88220"
+                                            BorderThickness="2"
+                                            CornerRadius="6"
+                                            Padding="10,8"
+                                            Background="#FFFDF5">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="REQUERIMIENTO DE COMPRA"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Foreground="#92400E"
+                                                       HorizontalAlignment="Center"/>
+                                            <TextBlock Text="{Binding RequerimientoParaImprimir.Numero}"
+                                                       FontSize="15"
+                                                       FontWeight="Bold"
+                                                       Foreground="#B88220"
+                                                       HorizontalAlignment="Center"
+                                                       Margin="0,3,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Título Principal -->
+                                <Border BorderBrush="#E5E7EB" BorderThickness="0,1,0,1" Padding="0,8" Margin="0,0,0,16">
+                                    <TextBlock Text="SOLICITUD DE COMPRA POR STOCK MÍNIMO / REPOSICIÓN"
+                                               FontSize="13"
+                                               FontWeight="Bold"
+                                               Foreground="#111827"
+                                               HorizontalAlignment="Center"/>
+                                </Border>
+
+                                <!-- ── METADATOS DEL REQUERIMIENTO ── -->
+                                <Grid Margin="0,0,0,20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Margin="0,0,0,4">
+                                            <Run FontWeight="Bold" Text="Fecha de Emisión: "/><Run Text="{Binding RequerimientoParaImprimir.Fecha, Mode=OneWay, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}"/>
+                                        </TextBlock>
+                                        <TextBlock Margin="0,0,0,4">
+                                            <Run FontWeight="Bold" Text="Solicitante: "/><Run Text="{Binding RequerimientoParaImprimir.Usuario.Empleado.NombreCompleto, Mode=OneWay, TargetNullValue='Almacenero Responsable'}"/>
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run FontWeight="Bold" Text="Cargo: "/><Run Text="{Binding RequerimientoParaImprimir.Usuario.Empleado.Cargo.Nombre, Mode=OneWay, TargetNullValue='Jefe de Almacén'}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Margin="0,0,0,4">
+                                            <Run FontWeight="Bold" Text="Área Destino: "/><Run Text="{Binding RequerimientoParaImprimir.Area, Mode=OneWay, TargetNullValue='Almacén Central y Planta'}"/>
+                                        </TextBlock>
+                                        <TextBlock Margin="0,0,0,4">
+                                            <Run FontWeight="Bold" Text="Motivo: "/><Run Text="Reposición obligatoria por nivel de stock mínimo"/>
+                                        </TextBlock>
+                                        <TextBlock>
+                                            <Run FontWeight="Bold" Text="Estado: "/><Run Text="PENDIENTE DE AUTORIZACIÓN" FontWeight="Bold" Foreground="#D97706"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- ── TABLA FORMAL DE ARTÍCULOS A REQUERIR ── -->
+                                <TextBlock Text="DETALLE DE ÍTEMS QUE REQUIEREN COMPRA URGENTE"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="#374151"
+                                           Margin="0,0,0,6"/>
+
+                                <Border BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="4" Margin="0,0,0,24">
+                                    <ItemsControl ItemsSource="{Binding RequerimientoParaImprimir.Detalles}">
+                                        <!-- Cabecera de la tabla -->
+                                        <ItemsControl.Template>
+                                            <ControlTemplate TargetType="ItemsControl">
+                                                <StackPanel>
+                                                    <Border Background="#F3F4F6" BorderBrush="#D1D5DB" BorderThickness="0,0,0,1" Padding="8,8">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="40"/>
+                                                                <ColumnDefinition Width="90"/>
+                                                                <ColumnDefinition Width="70"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="50"/>
+                                                                <ColumnDefinition Width="65"/>
+                                                                <ColumnDefinition Width="65"/>
+                                                                <ColumnDefinition Width="80"/>
+                                                                <ColumnDefinition Width="90"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="N°" FontWeight="Bold" FontSize="11" Foreground="#374151" HorizontalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="1" Text="CÓDIGO" FontWeight="Bold" FontSize="11" Foreground="#374151"/>
+                                                            <TextBlock Grid.Column="2" Text="TIPO" FontWeight="Bold" FontSize="11" Foreground="#374151"/>
+                                                            <TextBlock Grid.Column="3" Text="DESCRIPCIÓN DEL ARTÍCULO" FontWeight="Bold" FontSize="11" Foreground="#374151"/>
+                                                            <TextBlock Grid.Column="4" Text="UND" FontWeight="Bold" FontSize="11" Foreground="#374151" HorizontalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="5" Text="ACTUAL" FontWeight="Bold" FontSize="11" Foreground="#DC2626" HorizontalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="6" Text="MÍNIMO" FontWeight="Bold" FontSize="11" Foreground="#374151" HorizontalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="7" Text="CANT. SUG." FontWeight="Bold" FontSize="11" Foreground="#2563EB" HorizontalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="8" Text="APROBADO" FontWeight="Bold" FontSize="11" Foreground="#059669" HorizontalAlignment="Center"/>
+                                                        </Grid>
+                                                    </Border>
+                                                    <ItemsPresenter/>
+                                                </StackPanel>
+                                            </ControlTemplate>
+                                        </ItemsControl.Template>
+
+                                        <!-- Filas de la tabla -->
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="8,6">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="40"/>
+                                                            <ColumnDefinition Width="90"/>
+                                                            <ColumnDefinition Width="70"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="50"/>
+                                                            <ColumnDefinition Width="65"/>
+                                                            <ColumnDefinition Width="65"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="90"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <!-- N° correlativo o punto -->
+                                                        <TextBlock Grid.Column="0" Text="•" FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" Foreground="#9CA3AF"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding ItemCodigo}" FontWeight="Bold" FontSize="11" Foreground="#1F2937"/>
+                                                        <TextBlock Grid.Column="2" Text="{Binding TipoItem}" FontSize="11" Foreground="#4B5563"/>
+                                                        <TextBlock Grid.Column="3" Text="{Binding ItemNombre}" FontWeight="SemiBold" FontSize="11" Foreground="#111827"/>
+                                                        <TextBlock Grid.Column="4" Text="{Binding ItemUnidad}" FontSize="11" Foreground="#4B5563" HorizontalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="5" Text="{Binding StockActual, StringFormat='{}{0:N0}'}" FontWeight="Bold" FontSize="11" Foreground="#DC2626" HorizontalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="6" Text="{Binding StockMinimo, StringFormat='{}{0:N0}'}" FontSize="11" Foreground="#6B7280" HorizontalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="7" Text="{Binding CantidadSugerida, StringFormat='{}{0:N0}'}" FontWeight="Bold" FontSize="12" Foreground="#2563EB" HorizontalAlignment="Center"/>
+                                                        <!-- Cuadro en blanco para anotación o firma de cantidad aprobada por administración -->
+                                                        <Border Grid.Column="8" BorderBrush="#D1D5DB" BorderThickness="1" CornerRadius="3" Height="22" Width="60" HorizontalAlignment="Center">
+                                                            <TextBlock Text="{Binding CantidadAprobada, StringFormat='{}{0:N0}'}" FontSize="11" FontWeight="Bold" Foreground="#059669" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+
+                                <!-- ── NOTAS Y OBSERVACIONES ── -->
+                                <Border Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="4" Padding="12,10" Margin="0,0,0,40">
+                                    <StackPanel>
+                                        <TextBlock Text="OBSERVACIONES GENERALES / JUSTIFICACIÓN DE COMPRA:" FontWeight="Bold" FontSize="10" Foreground="#4B5563" Margin="0,0,0,4"/>
+                                        <TextBlock Text="Los materiales y equipos arriba detallados son indispensables para la continuidad de las operaciones mineras y el cumplimiento de las normas de seguridad y salud en el trabajo (DS 024-2016-EM). Se solicita su adquisición y reposición a la brevedad posible."
+                                                   FontSize="10"
+                                                   Foreground="#6B7280"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- ── SECCIÓN DE FIRMAS Y CONFORMIDAD ── -->
+                                <Grid Margin="0,20,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Firma 1: Solicitante -->
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                        <Border BorderBrush="#9CA3AF" BorderThickness="0,1,0,0" Width="180" Margin="0,0,0,6"/>
+                                        <TextBlock Text="SOLICITANTE" FontWeight="Bold" FontSize="10" Foreground="#374151" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Almacén de Planta" FontSize="9" Foreground="#6B7280" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- Firma 2: Administración -->
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                        <Border BorderBrush="#9CA3AF" BorderThickness="0,1,0,0" Width="180" Margin="0,0,0,6"/>
+                                        <TextBlock Text="ADMINISTRACIÓN" FontWeight="Bold" FontSize="10" Foreground="#374151" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Autorización de Compra" FontSize="9" Foreground="#6B7280" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- Firma 3: Gerencia -->
+                                    <StackPanel Grid.Column="4" HorizontalAlignment="Center">
+                                        <Border BorderBrush="#9CA3AF" BorderThickness="0,1,0,0" Width="180" Margin="0,0,0,6"/>
+                                        <TextBlock Text="V°B° GERENCIA" FontWeight="Bold" FontSize="10" Foreground="#374151" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Planta Minera Dorado S.A." FontSize="9" Foreground="#6B7280" HorizontalAlignment="Center"/>
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                    </Border>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

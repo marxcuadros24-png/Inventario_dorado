@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/InventarioMinero.BLL/InventarioMinero.BLL.csproj" />
+    <Project Path="src/InventarioMinero.DAL/InventarioMinero.DAL.csproj" />
+    <Project Path="src/InventarioMinero.Models/InventarioMinero.Models.csproj" />
+    <Project Path="src/InventarioMinero.WPF/InventarioMinero.WPF.csproj" />
+  </Folder>
+</Solution>
