@@ -10,4 +10,6 @@ public class Cargo
 
     // Navegación
     public ICollection<Empleado> Empleados { get; set; } = new List<Empleado>();
+
+    public override string ToString() => Nombre;
 }

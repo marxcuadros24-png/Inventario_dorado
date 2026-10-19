@@ -19,6 +19,8 @@ public class Requerimiento
     public Usuario Usuario { get; set; } = null!;
     public Movimiento? Movimiento { get; set; }
     public ICollection<DetalleRequerimiento> Detalles { get; set; } = new List<DetalleRequerimiento>();
+
+    public override string ToString() => Numero;
 }
 
 public class DetalleRequerimiento

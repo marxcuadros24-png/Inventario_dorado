@@ -11,6 +11,8 @@ public class TipoMovimiento
     public bool Activo { get; set; } = true;
 
     public ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
+
+    public override string ToString() => Nombre;
 }
 
 public class Movimiento
@@ -32,6 +34,8 @@ public class Movimiento
     public Usuario Usuario { get; set; } = null!;
     public Requerimiento? Requerimiento { get; set; }
     public ICollection<DetalleMovimiento> Detalles { get; set; } = new List<DetalleMovimiento>();
+
+    public override string ToString() => Numero;
 }
 
 public class DetalleMovimiento

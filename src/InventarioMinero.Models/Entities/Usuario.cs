@@ -8,6 +8,8 @@ public class Rol
     public bool Activo { get; set; } = true;
 
     public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
+
+    public override string ToString() => Nombre;
 }
 
 public class Usuario
@@ -28,4 +30,6 @@ public class Usuario
     public ICollection<Movimiento> Movimientos { get; set; } = new List<Movimiento>();
     public ICollection<AsignacionHerramienta> Asignaciones { get; set; } = new List<AsignacionHerramienta>();
     public ICollection<EntregaEPP> EntregasEPP { get; set; } = new List<EntregaEPP>();
+
+    public override string ToString() => NombreUsuario;
 }

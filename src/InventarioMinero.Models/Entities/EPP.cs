@@ -26,6 +26,8 @@ public class EPP
     public UnidadMedida Unidad { get; set; } = null!;
     public ICollection<DetalleEntregaEPP> Entregas { get; set; } = new List<DetalleEntregaEPP>();
     public ICollection<DetalleRequerimiento> DetallesRequerimiento { get; set; } = new List<DetalleRequerimiento>();
+
+    public override string ToString() => Nombre;
 }
 
 public class EntregaEPP

@@ -12,6 +12,8 @@ public class Categoria
 
     public ICollection<Herramienta> Herramientas { get; set; } = new List<Herramienta>();
     public ICollection<EPP> EPPs { get; set; } = new List<EPP>();
+
+    public override string ToString() => Nombre;
 }
 
 public class UnidadMedida
@@ -23,4 +25,6 @@ public class UnidadMedida
 
     public ICollection<Herramienta> Herramientas { get; set; } = new List<Herramienta>();
     public ICollection<EPP> EPPs { get; set; } = new List<EPP>();
+
+    public override string ToString() => Nombre;
 }

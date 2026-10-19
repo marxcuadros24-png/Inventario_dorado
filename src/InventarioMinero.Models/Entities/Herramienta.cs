@@ -25,4 +25,6 @@ public class Herramienta
     public ICollection<DetalleMovimiento> DetallesMovimiento { get; set; } = new List<DetalleMovimiento>();
     public ICollection<AsignacionHerramienta> Asignaciones { get; set; } = new List<AsignacionHerramienta>();
     public ICollection<DetalleRequerimiento> DetallesRequerimiento { get; set; } = new List<DetalleRequerimiento>();
+
+    public override string ToString() => Nombre;
 }

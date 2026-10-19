@@ -28,4 +28,6 @@ public class Empleado
         get => $"{Nombres} {Apellidos}".Trim();
         set { }
     }
+
+    public override string ToString() => NombreCompleto;
 }
